@@ -807,6 +807,7 @@ else if (element.url) {
       Noty.show('Внешний плеер можно указать в init.conf (playerInner)', {time: 3000});
     Player.play(element);
   }
+
 }
                 Lampa.Player.play(element);
                 Lampa.Player.playlist(playlist);
@@ -1784,7 +1785,7 @@ else if (element.url) {
       lampac_no_watch_history: {
         ru: 'Нет истории просмотра',
         en: 'No browsing history',
-        ua: 'Немає історії перегляду',
+        ua: 'Нет истории просмотра',
         zh: '没有浏览历史'
       },
       lampac_nolink: {
