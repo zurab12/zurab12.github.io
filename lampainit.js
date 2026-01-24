@@ -175,7 +175,7 @@ else {
 
     var plugins = Lampa.Plugins.get();
 
-    var plugins_add = [{"url": "https://bwa.to/rc","status": 1,"name": "bwa.to","author": "lampac"},{"url": "https://zurab12.github.io/timecode.js","status": 1,"name": "timecode.js","author": "lampac"},{"url": "https://zurab12.github.io/lampa_rate.js","status": 1,"name": "lampa_rate.js","author": "lampac"},{"url": "https://zurab12.github.io/kinozal.js","status": 1,"name": "kinozal.js","author": "lampac"},{"url": "https://zurab12.github.io/t.js","status": 1,"name": "TMDB Proxy","author": "lampac"},{"url": "https://zurab12.github.io/mrm.js","status": 1,"name": "ratings","author": "lampac"},{"url": "https://zurab12.github.io/123.js","status": 1,"name": "123.js","author": "lampac"},{"url": "https://zurab12.github.io/torrents+.js","status": 1,"name": "torrents+.js","author": "lampac"},{"url": "https://zurab12.github.io/im.js","status": 1,"name": "im.js","author": "lampac"},{"url": "https://zurab12.github.io/pf.js","status": 1,"name": "pf.js","author": "lampac"},{"url": "https://zurab12.github.io/prisma_collections.js","status": 1,"name": "prisma_collections.js","author": "lampac"},{"url": "https://bywolf88.github.io/lampa-plugins/cinemabywolf.js","status": 1,"name": "cinema","author": "lampac"}];
+    var plugins_add = [{"url": "https://zurab12.github.io/rus_movie.js","status": 1,"name": "rus_movie.js","author": "lampac"},{"url": "https://bwa.to/rc","status": 1,"name": "bwa.to","author": "lampac"},{"url": "https://zurab12.github.io/timecode.js","status": 1,"name": "timecode.js","author": "lampac"},{"url": "https://zurab12.github.io/lampa_rate.js","status": 1,"name": "lampa_rate.js","author": "lampac"},{"url": "https://zurab12.github.io/kinozal.js","status": 1,"name": "kinozal.js","author": "lampac"},{"url": "https://zurab12.github.io/t.js","status": 1,"name": "TMDB Proxy","author": "lampac"},{"url": "https://zurab12.github.io/mrm.js","status": 1,"name": "ratings","author": "lampac"},{"url": "https://zurab12.github.io/123.js","status": 1,"name": "123.js","author": "lampac"},{"url": "https://zurab12.github.io/torrents+.js","status": 1,"name": "torrents+.js","author": "lampac"},{"url": "https://zurab12.github.io/im.js","status": 1,"name": "im.js","author": "lampac"},{"url": "https://zurab12.github.io/pf.js","status": 1,"name": "pf.js","author": "lampac"},{"url": "https://zurab12.github.io/prisma_collections.js","status": 1,"name": "prisma_collections.js","author": "lampac"},{"url": "https://bywolf88.github.io/lampa-plugins/cinemabywolf.js","status": 1,"name": "cinema","author": "lampac"}];
 
     var plugins_push = [];
 
@@ -198,3 +198,4 @@ else {
   }
 
 })();
+
