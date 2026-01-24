@@ -199,7 +199,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 
   function rchRun(json, call) {
     if (typeof NativeWsClient == 'undefined') {
-      Lampa.Utils.putScript(["https://lampaua.mooo.com/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
+      Lampa.Utils.putScript(["https://zurab12.github.io/1/nws-client-es5.js"], function() {}, false, function() {
         rchInvoke(json, call);
       }, true);
     } else {
@@ -1934,3 +1934,4 @@ else if (element.url) {
   if (!window.BazarNetUA_plugin) startPlugin();
 
 })();
+
