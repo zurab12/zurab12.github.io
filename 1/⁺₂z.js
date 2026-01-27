@@ -199,7 +199,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 
   function rchRun(json, call) {
     if (typeof NativeWsClient == 'undefined') {
-      Lampa.Utils.putScript(["https://zurab12.github.io/1/nws-client-es5.js"], function() {}, false, function() {
+      Lampa.Utils.putScript(["https://lampaua.mooo.com/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
         rchInvoke(json, call);
       }, true);
     } else {
@@ -807,7 +807,6 @@ else if (element.url) {
       Noty.show('Внешний плеер можно указать в init.conf (playerInner)', {time: 3000});
     Player.play(element);
   }
-
 }
                 Lampa.Player.play(element);
                 Lampa.Player.playlist(playlist);
@@ -1785,7 +1784,7 @@ else if (element.url) {
       lampac_no_watch_history: {
         ru: 'Нет истории просмотра',
         en: 'No browsing history',
-        ua: 'Нет истории просмотра',
+        ua: 'Немає історії перегляду',
         zh: '没有浏览历史'
       },
       lampac_nolink: {
@@ -1934,4 +1933,3 @@ else if (element.url) {
   if (!window.BazarNetUA_plugin) startPlugin();
 
 })();
-
