@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://lampaua.mooo.com?api_key=4ef0d7355d9ffb5151e987764708ce96&language=ru&uid=bazarnetua/',
+    localhost: 'https://lampaua.mooo.com?uid=bazarnetua/',
     apn: ''
   };
 
@@ -28,7 +28,7 @@
   }
 }
 
-var hostkey = 'https://lampaua.mooo.com'.replace('http://', '').replace('https://', '');
+var hostkey = 'https://lampaua.mooo.com?uid=bazarnetua'.replace('http://', '').replace('https://', '');
 
 if (!window.rch_nws || !window.rch_nws[hostkey]) {
   if (!window.rch_nws) window.rch_nws = {};
@@ -65,7 +65,7 @@ window.rch_nws[hostkey].typeInvoke = function rchtypeInvoke(host, call) {
 };
 
 window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection) {
-  window.rch_nws[hostkey].typeInvoke('https://lampaua.mooo.com', function() {
+  window.rch_nws[hostkey].typeInvoke('https://lampaua.mooo.com?uid=bazarnetua', function() {
 
     client.invoke("RchRegistry", JSON.stringify({
       version: 151,
@@ -176,7 +176,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
     });
   });
 };
-  window.rch_nws[hostkey].typeInvoke('https://lampaua.mooo.com', function() {});
+  window.rch_nws[hostkey].typeInvoke('https://lampaua.mooo.com?uid=bazarnetua', function() {});
 
   function rchInvoke(json, call) {
     if (window.nwsClient && window.nwsClient[hostkey] && window.nwsClient[hostkey]._shouldReconnect){
@@ -199,7 +199,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 
   function rchRun(json, call) {
     if (typeof NativeWsClient == 'undefined') {
-      Lampa.Utils.putScript(["https://lampaua.mooo.com/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
+      Lampa.Utils.putScript(["https://lampaua.mooo.com/js/nws-client-es5.js?v18112025?uid=bazarnetua"], function() {}, false, function() {
         rchInvoke(json, call);
       }, true);
     } else {
@@ -262,7 +262,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 	
     if (balansers_with_search == undefined) {
       network.timeout(10000);
-      network.silent(account('https://lampaua.mooo.com/lite/withsearch'), function(json) {
+      network.silent(account('https://lampaua.mooo.com/lite/withsearch?uid=bazarnetua'), function(json) {
         balansers_with_search = json;
       }, function() {
 		  balansers_with_search = [];
@@ -1933,4 +1933,5 @@ else if (element.url) {
   if (!window.BazarNetUA_plugin) startPlugin();
 
 })();
+
 
