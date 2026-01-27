@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://lampaua.mooo.com/',
+    localhost: 'https://lampaua.mooo.com?api_key=4ef0d7355d9ffb5151e987764708ce96&language=ru&uid=bazarnetua/',
     apn: ''
   };
 
@@ -1933,3 +1933,4 @@ else if (element.url) {
   if (!window.BazarNetUA_plugin) startPlugin();
 
 })();
+
