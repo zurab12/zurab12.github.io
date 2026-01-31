@@ -3,210 +3,60 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'http://109.184.49.149:280/',
+    localhost: 'https://esqeocaf.deploy.cx/',
     apn: ''
   };
 
-  var balansers_with_search;
-  
   var unic_id = Lampa.Storage.get('lampac_unic_id', '');
   if (!unic_id) {
     unic_id = Lampa.Utils.uid(8).toLowerCase();
     Lampa.Storage.set('lampac_unic_id', unic_id);
   }
   
-    function getAndroidVersion() {
-  if (Lampa.Platform.is('android')) {
-    try {
-      var current = AndroidJS.appVersion().split('-');
-      return parseInt(current.pop());
-    } catch (e) {
-      return 0;
-    }
-  } else {
-    return 0;
+  if (!window.rch) {
+    Lampa.Utils.putScript(["https://esqeocaf.deploy.cx/invc-rch.js"], function() {}, false, function() {
+      if (!window.rch.startTypeInvoke)
+        window.rch.typeInvoke('https://esqeocaf.deploy.cx', function() {});
+    }, true);
   }
-}
-
-var hostkey = 'http://109.184.49.149:280'.replace('http://', '').replace('https://', '');
-
-if (!window.rch_nws || !window.rch_nws[hostkey]) {
-  if (!window.rch_nws) window.rch_nws = {};
-
-  window.rch_nws[hostkey] = {
-    type: Lampa.Platform.is('android') ? 'apk' : Lampa.Platform.is('tizen') ? 'cors' : undefined,
-    startTypeInvoke: false,
-    rchRegistry: false,
-    apkVersion: getAndroidVersion()
-  };
-}
-
-window.rch_nws[hostkey].typeInvoke = function rchtypeInvoke(host, call) {
-  if (!window.rch_nws[hostkey].startTypeInvoke) {
-    window.rch_nws[hostkey].startTypeInvoke = true;
-
-    var check = function check(good) {
-      window.rch_nws[hostkey].type = Lampa.Platform.is('android') ? 'apk' : good ? 'cors' : 'web';
-      call();
-    };
-
-    if (Lampa.Platform.is('android') || Lampa.Platform.is('tizen')) check(true);
-    else {
-      var net = new Lampa.Reguest();
-      net.silent('http://109.184.49.149:280'.indexOf(location.host) >= 0 ? 'https://github.com/' : host + '/cors/check', function() {
-        check(true);
-      }, function() {
-        check(false);
-      }, false, {
-        dataType: 'text'
-      });
-    }
-  } else call();
-};
-
-window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection) {
-  window.rch_nws[hostkey].typeInvoke('http://109.184.49.149:280', function() {
-
-    client.invoke("RchRegistry", JSON.stringify({
-      version: 151,
-      host: location.host,
-      rchtype: Lampa.Platform.is('android') ? 'apk' : Lampa.Platform.is('tizen') ? 'cors' : (window.rch_nws[hostkey].type || 'web'),
-      apkVersion: window.rch_nws[hostkey].apkVersion,
-      player: Lampa.Storage.field('player'),
-	  account_email: Lampa.Storage.get('account_email', ''),
-	  unic_id: Lampa.Storage.get('lampac_unic_id', ''),
-	  profile_id: Lampa.Storage.get('lampac_profile_id', ''),
-	  token: ''
-    }));
-
-    if (client._shouldReconnect && window.rch_nws[hostkey].rchRegistry) {
-      if (startConnection) startConnection();
-      return;
-    }
-
-    window.rch_nws[hostkey].rchRegistry = true;
-
-    client.on('RchRegistry', function(clientIp) {
-      if (startConnection) startConnection();
-    });
-
-    client.on("RchClient", function(rchId, url, data, headers, returnHeaders) {
-      var network = new Lampa.Reguest();
-	  
-	  function sendResult(uri, html) {
-	    $.ajax({
-	      url: 'http://109.184.49.149:280/rch/' + uri + '?id=' + rchId,
-	      type: 'POST',
-	      data: html,
-	      async: true,
-	      cache: false,
-	      contentType: false,
-	      processData: false,
-	      success: function(j) {},
-	      error: function() {
-	        client.invoke("RchResult", rchId, '');
-	      }
-	    });
-	  }
-
-      function result(html) {
-        if (Lampa.Arrays.isObject(html) || Lampa.Arrays.isArray(html)) {
-          html = JSON.stringify(html);
-        }
-
-        if (typeof CompressionStream !== 'undefined' && html && html.length > 1000) {
-          var compressionStream = new CompressionStream('gzip');
-          var encoder = new TextEncoder();
-          var readable = new ReadableStream({
-            start: function(controller) {
-              controller.enqueue(encoder.encode(html));
-              controller.close();
-            }
-          });
-          var compressedStream = readable.pipeThrough(compressionStream);
-          new Response(compressedStream).arrayBuffer()
-            .then(function(compressedBuffer) {
-              var compressedArray = new Uint8Array(compressedBuffer);
-              if (compressedArray.length > html.length) {
-                sendResult('result', html);
-              } else {
-                sendResult('gzresult', compressedArray);
-              }
-            })
-            .catch(function() {
-              sendResult('result', html);
-            });
-
-        } else {
-          sendResult('result', html);
-        }
-      }
-
-      if (url == 'eval') {
-        console.log('RCH', url, data);
-        result(eval(data));
-      } else if (url == 'evalrun') {
-        console.log('RCH', url, data);
-        eval(data);
-      } else if (url == 'ping') {
-        result('pong');
-      } else {
-        console.log('RCH', url);
-        network["native"](url, result, function(e) {
-          console.log('RCH', 'result empty, ' + e.status);
-          result('');
-        }, data, {
-          dataType: 'text',
-          timeout: 1000 * 8,
-          headers: headers,
-          returnHeaders: returnHeaders
-        });
-      }
-    });
-
-    client.on('Connected', function(connectionId) {
-      console.log('RCH', 'ConnectionId: ' + connectionId);
-      window.rch_nws[hostkey].connectionId = connectionId;
-    });
-    client.on('Closed', function() {
-      console.log('RCH', 'Connection closed');
-    });
-    client.on('Error', function(err) {
-      console.log('RCH', 'error:', err);
-    });
-  });
-};
-  window.rch_nws[hostkey].typeInvoke('http://109.184.49.149:280', function() {});
+  
+  var hubConnection;
+  var hub_timer;
+  var balansers_with_search;
 
   function rchInvoke(json, call) {
-    if (window.nwsClient && window.nwsClient[hostkey] && window.nwsClient[hostkey]._shouldReconnect){
-      call();
-      return;
+    if (hubConnection) {
+      clearTimeout(hub_timer);
+      hubConnection.stop();
+      hubConnection = null;
     }
-    if (!window.nwsClient) window.nwsClient = {};
-    if (window.nwsClient[hostkey] && window.nwsClient[hostkey].socket)
-      window.nwsClient[hostkey].socket.close();
-    window.nwsClient[hostkey] = new NativeWsClient(json.nws, {
-      autoReconnect: false
-    });
-    window.nwsClient[hostkey].on('Connected', function(connectionId) {
-      window.rch_nws[hostkey].Registry(window.nwsClient[hostkey], function() {
+    hubConnection = new signalR.HubConnectionBuilder().withUrl(json.ws).build();
+    hubConnection.start().then(function() {
+      window.rch.Registry(json.result, hubConnection, function() {
         call();
       });
+    })["catch"](function(err) {
+      Lampa.Noty.show(err.toString());
+      //return console.error(err.toString());
     });
-    window.nwsClient[hostkey].connect();
+    if (json.keepalive > 0) {
+      hub_timer = setTimeout(function() {
+        hubConnection.stop();
+		hubConnection = null;
+      }, 1000 * json.keepalive);
+    }
   }
 
   function rchRun(json, call) {
-    if (typeof NativeWsClient == 'undefined') {
-      Lampa.Utils.putScript(["http://109.184.49.149:280/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
+    if (typeof signalR == 'undefined') {
+      Lampa.Utils.putScript(["https://esqeocaf.deploy.cx/signalr-6.0.25_es5.js"], function() {}, false, function() {
         rchInvoke(json, call);
       }, true);
     } else {
       rchInvoke(json, call);
     }
   }
-
+  
   function account(url) {
     url = url + '';
     if (url.indexOf('account_email=') == -1) {
@@ -218,12 +68,8 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
       if (uid) url = Lampa.Utils.addUrlComponent(url, 'uid=' + encodeURIComponent(uid));
     }
     if (url.indexOf('token=') == -1) {
-      var token = '';
-      if (token != '') url = Lampa.Utils.addUrlComponent(url, 'token=');
-    }
-    if (url.indexOf('nws_id=') == -1 && window.rch_nws && window.rch_nws[hostkey]) {
-      var nws_id = window.rch_nws[hostkey].connectionId || Lampa.Storage.get('lampac_nws_id', '');
-      if (nws_id) url = Lampa.Utils.addUrlComponent(url, 'nws_id=' + encodeURIComponent(nws_id));
+      var token = '{token}';
+      if (token != '') url = Lampa.Utils.addUrlComponent(url, 'token={token}');
     }
     return url;
   }
@@ -262,7 +108,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 	
     if (balansers_with_search == undefined) {
       network.timeout(10000);
-      network.silent(account('http://109.184.49.149:280/lite/withsearch'), function(json) {
+      network.silent(account('https://esqeocaf.deploy.cx/lite/withsearch'), function(json) {
         balansers_with_search = json;
       }, function() {
 		  balansers_with_search = [];
@@ -404,7 +250,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
       return new Promise(function(resolve, reject) {
         if (!object.movie.imdb_id || !object.movie.kinopoisk_id) {
           var query = [];
-          query.push('id=' + encodeURIComponent(object.movie.id));
+          query.push('id=' + object.movie.id);
           query.push('serial=' + (object.movie.name ? 1 : 0));
           if (object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
           if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
@@ -438,19 +284,18 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
     this.requestParams = function(url) {
       var query = [];
       var card_source = object.movie.source || 'tmdb'; //Lampa.Storage.field('source')
-      query.push('id=' + encodeURIComponent(object.movie.id));
+      query.push('id=' + object.movie.id);
       if (object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
       if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
-	  if (object.movie.tmdb_id) query.push('tmdb_id=' + (object.movie.tmdb_id || ''));
       query.push('title=' + encodeURIComponent(object.clarification ? object.search : object.movie.title || object.movie.name));
       query.push('original_title=' + encodeURIComponent(object.movie.original_title || object.movie.original_name));
       query.push('serial=' + (object.movie.name ? 1 : 0));
       query.push('original_language=' + (object.movie.original_language || ''));
       query.push('year=' + ((object.movie.release_date || object.movie.first_air_date || '0000') + '').slice(0, 4));
       query.push('source=' + card_source);
+	  query.push('rchtype=' + (window.rch ? window.rch.type : ''));
       query.push('clarification=' + (object.clarification ? 1 : 0));
       query.push('similar=' + (object.similar ? true : false));
-      query.push('rchtype=' + (((window.rch_nws && window.rch_nws[hostkey]) ? window.rch_nws[hostkey].type : (window.rch && window.rch[hostkey]) ? window.rch[hostkey].type : '') || ''));
       if (Lampa.Storage.get('account_email', '')) query.push('cub_id=' + Lampa.Utils.hash(Lampa.Storage.get('account_email', '')));
       return url + (url.indexOf('?') >= 0 ? '&' : '?') + query.join('&');
     };
@@ -483,7 +328,6 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
           if (!sources[balanser]) balanser = filter_sources[0];
           if (!sources[balanser].show && !object.lampac_custom_select) balanser = filter_sources[0];
           source = sources[balanser].url;
-          Lampa.Storage.set('active_balanser', balanser);
           resolve(json);
         } else {
           reject();
@@ -643,7 +487,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         return [];
       }
     };
-    this.getFileUrl = function(file, call, waiting_rch) {
+    this.getFileUrl = function(file, call) {
 	  var _this = this;
 	  
       if(Lampa.Storage.field('player') !== 'inner' && file.stream && Lampa.Platform.is('apple')){
@@ -661,18 +505,11 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         });
         network["native"](account(file.url), function(json) {
 			if(json.rch){
-				if(waiting_rch) {
-					waiting_rch = false;
+				_this.rch(json,function(){
 					Lampa.Loading.stop();
-					call(false, {});
-				}
-				else {
-					_this.rch(json,function(){
-						Lampa.Loading.stop();
-						
-						_this.getFileUrl(file, call, true);
-					});
-				}
+					
+					_this.getFileUrl(file, call);
+				});
 			}
 			else{
 				Lampa.Loading.stop();
@@ -691,12 +528,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         quality: file.qualitys,
         timeline: file.timeline,
         subtitles: file.subtitles,
-		segments: file.segments,
-        callback: file.mark,
-		season: file.season,
-		episode: file.episode,
-		voice_name: file.voice_name,
-		thumbnail: file.thumbnail
+        callback: file.mark
       };
       return play;
     };
@@ -730,17 +562,10 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
               first.url = json.url;
               first.headers = json_call.headers || json.headers;
               first.quality = json_call.quality || item.qualitys;
-			  first.segments = json_call.segments || item.segments;
               first.hls_manifest_timeout = json_call.hls_manifest_timeout || json.hls_manifest_timeout;
               first.subtitles = json.subtitles;
-			  first.subtitles_call = json_call.subtitles_call || json.subtitles_call;
-			  if (json.vast && json.vast.url) {
-                first.vast_url = json.vast.url;
-                first.vast_msg = json.vast.msg;
-                first.vast_region = json.vast.region;
-                first.vast_platform = json.vast.platform;
-                first.vast_screen = json.vast.screen;
-			  }
+              first.vast_url = json.vast_url;
+              first.vast_msg = json.vast_msg;
               _this5.orUrlReserve(first);
               _this5.setDefaultQuality(first);
               if (item.season) {
@@ -758,7 +583,6 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
                             if (stream.url) {
                               cell.url = stream.url;
                               cell.quality = stream_json.quality || elem.qualitys;
-							  cell.segments = stream_json.segments || elem.segments;
                               cell.subtitles = stream.subtitles;
                               _this5.orUrlReserve(cell);
                               _this5.setDefaultQuality(cell);
@@ -789,28 +613,9 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
               if (first.url) {
                 var element = first;
 				element.isonline = true;
-                if (element.url && element.isonline) {
-  // online.js
-} 
-else if (element.url) {
-  if (false) {
-    if (Platform.is('browser') && location.host.indexOf("127.0.0.1") !== -1) {
-      Noty.show('Видео открыто в playerInner', {time: 3000});
-      $.get('http://109.184.49.149:280/player-inner/' + element.url);
-      return;
-    }
-
-    Player.play(element);
-  } 
-  else {
-    if (true && Platform.is('browser') && location.host.indexOf("127.0.0.1") !== -1)
-      Noty.show('Внешний плеер можно указать в init.conf (playerInner)', {time: 3000});
-    Player.play(element);
-  }
-}
-                Lampa.Player.play(element);
+                {player-inner}
+                Lampa.Player.play(first);
                 Lampa.Player.playlist(playlist);
-				if(element.subtitles_call) _this5.loadSubtitles(element.subtitles_call)
                 item.mark();
                 _this5.updateBalanser(balanser);
               } else {
@@ -837,11 +642,6 @@ else if (element.url) {
         })
       }, this.getChoice());
     };
-	this.loadSubtitles = function(link){
-		network.silent(account(link), function(subs){
-			Lampa.Player.subtitles(subs)
-		})
-	}
     this.parse = function(str) {
       var json = Lampa.Arrays.decodeJson(str, {});
       if (Lampa.Arrays.isObject(str) && str.rch) json = str;
@@ -1115,17 +915,17 @@ else if (element.url) {
     };
     this.getEpisodes = function(season, call) {
       var episodes = [];
-	  var tmdb_id = object.movie.id;
-	  if (['cub', 'tmdb'].indexOf(object.movie.source || 'tmdb') == -1) 
-        tmdb_id = object.movie.tmdb_id;
-      if (typeof tmdb_id == 'number' && object.movie.name) {
-		  Lampa.Api.sources.tmdb.get('tv/' + tmdb_id + '/season/' + season, {}, function(data){
-			  episodes = data.episodes || [];
-			  
-			  call(episodes);
-		  }, function(){
-			  call(episodes);
-		  })
+      if (['cub', 'tmdb'].indexOf(object.movie.source || 'tmdb') == -1) return call(episodes);
+      if (typeof object.movie.id == 'number' && object.movie.name) {
+        var tmdburl = 'tv/' + object.movie.id + '/season/' + season + '?api_key=' + Lampa.TMDB.key() + '&language=' + Lampa.Storage.get('language', 'ru');
+        var baseurl = Lampa.TMDB.api(tmdburl);
+        network.timeout(1000 * 10);
+        network["native"](baseurl, function(data) {
+          episodes = data.episodes || [];
+          call(episodes);
+        }, function(a, c) {
+          call(episodes);
+        });
       } else call(episodes);
     };
     this.watched = function(set) {
@@ -1227,8 +1027,7 @@ else if (element.url) {
           if (serial && !episode) {
             image.append('<div class="online-prestige__episode-number">' + ('0' + (element.episode || index + 1)).slice(-2) + '</div>');
             loader.remove();
-          }
-		  else if (!serial && object.movie.backdrop_path == 'undefined') loader.remove();
+          } else if (!serial && ['cub', 'tmdb'].indexOf(object.movie.source || 'tmdb') == -1) loader.remove();
           else {
             var img = html.find('img')[0];
             img.onerror = function() {
@@ -1241,7 +1040,6 @@ else if (element.url) {
             };
             img.src = Lampa.TMDB.image('t/p/w300' + (episode ? episode.still_path : object.movie.backdrop_path));
             images.push(img);
-			element.thumbnail = img.src
           }
           html.find('.online-prestige__timeline').append(Lampa.Timeline.render(element.timeline));
           if (viewed.indexOf(hash_behold) !== -1) {
@@ -1624,6 +1422,11 @@ else if (element.url) {
       scroll.destroy();
       clearInterval(balanser_timer);
       clearTimeout(life_wait_timer);
+      if (hubConnection) {
+        clearTimeout(hub_timer);
+        hubConnection.stop();
+        hubConnection = null;
+      }
     };
   }
   
@@ -1735,14 +1538,14 @@ else if (element.url) {
     window.lampac_plugin = true;
     var manifst = {
       type: 'video',
-      version: '1.6.6',
+      version: '1.4.9',
       name: 'Lampac',
       description: 'Плагин для просмотра онлайн сериалов и фильмов',
       component: 'lampac',
       onContextMenu: function onContextMenu(object) {
         return {
           name: Lampa.Lang.translate('lampac_watch'),
-          description: ''
+          description: 'Плагин для просмотра онлайн сериалов и фильмов'
         };
       },
       onContextLauch: function onContextLauch(object) {
