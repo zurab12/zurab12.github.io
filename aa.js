@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://beta.l-vid.online/lite/withsearch?uid=zdpc0ufg/externalids?id=1426964&serial=0&imdb_id=tt39369643/',
+    localhost: 'https://beta.l-vid.online/externalids?id=1084242&serial=0&imdb_id=tt26443597&uid=zdpc0ufg/',
     apn: ''
   };
 
@@ -2310,6 +2310,7 @@ else if (element.url) {
 
 
 })();
+
 
 
 
