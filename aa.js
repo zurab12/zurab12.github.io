@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://beta.l-vid.online/lite/withsearch?uid=zdpc0ufg/lite/events?life=true&id=1426964&imdb_id=tt39369643&title=%D0%93%D1%80%D1%83%D0%BF%D0%BF%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0%3A%20%D0%BE%D0%B1%D1%89%D0%B8%D0%B9%20%D1%81%D0%B1%D0%BE%D1%80&original_title=Salve%20Geral%3A%20Irmandade&serial=0&original_language=pt&year=2026&source=tmdb&clarification=0&similar=false&rchtype=cors/',
+    localhost: 'https://beta.l-vid.online/lite/withsearch?uid=zdpc0ufg/externalids?id=1426964&serial=0&imdb_id=tt39369643/',
     apn: ''
   };
 
@@ -2310,6 +2310,7 @@ else if (element.url) {
 
 
 })();
+
 
 
 
