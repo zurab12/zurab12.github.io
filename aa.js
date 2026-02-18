@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://beta.l-vid.online/lifeevents?memkey=564003d5eb2634612c94aeec&id=1084242&imdb_id=tt26443597&title=%D0%97%D0%B2%D0%B5%D1%80%D0%BE%D0%BF%D0%BE%D0%BB%D0%B8%D1%81%202&original_title=Zootopia%202&serial=0&original_language=en&year=2025&source=tmdb&clarification=0&similar=false&rchtype=cors&uid=zdpc0ufg/',
+    localhost: 'https://beta.l-vid.online/',
     apn: ''
   };
 
@@ -2310,6 +2310,7 @@ else if (element.url) {
 
 
 })();
+
 
 
 
