@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://beta.l-vid.online/lifeevents?memkey=fe91db771a4472bc49c64a00&id=1168190&imdb_id=tt33046197&title=%D0%9E%D0%BF%D0%B0%D1%81%D0%BD%D1%8B%D0%B9%20%D0%B4%D1%83%D1%8D%D1%82&original_title=The%20Wrecking%20Crew&serial=0&original_language=en&year=2026&source=tmdb&clarification=0&similar=false&rchtype=cors&uid=fpg1zpzz/',
+    localhost: 'https://beta.l-vid.online/lifeevents?memkey
     apn: ''
   };
 
@@ -2307,5 +2307,6 @@ else if (element.url) {
     }
   }
   if (!window.lampac_plugin) startPlugin();
+
 
 })();
