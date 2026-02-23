@@ -3,7 +3,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'https://lam9.akter-black.com/',
+    localhost: 'https://lam.maxvol.pro/',
     apn: ''
   };
 
@@ -28,7 +28,7 @@
   }
 }
 
-var hostkey = 'https://lam9.akter-black.com'.replace('http://', '').replace('https://', '');
+var hostkey = 'https://lam.maxvol.pro'.replace('http://', '').replace('https://', '');
 
 if (!window.rch_nws || !window.rch_nws[hostkey]) {
   if (!window.rch_nws) window.rch_nws = {};
@@ -53,7 +53,7 @@ window.rch_nws[hostkey].typeInvoke = function rchtypeInvoke(host, call) {
     if (Lampa.Platform.is('android') || Lampa.Platform.is('tizen')) check(true);
     else {
       var net = new Lampa.Reguest();
-      net.silent('https://lam9.akter-black.com'.indexOf(location.host) >= 0 ? 'https://github.com/' : host + '/cors/check', function() {
+      net.silent('https://lam.maxvol.pro'.indexOf(location.host) >= 0 ? 'https://github.com/' : host + '/cors/check', function() {
         check(true);
       }, function() {
         check(false);
@@ -65,15 +65,15 @@ window.rch_nws[hostkey].typeInvoke = function rchtypeInvoke(host, call) {
 };
 
 window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection) {
-  window.rch_nws[hostkey].typeInvoke('https://lam9.akter-black.com', function() {
+  window.rch_nws[hostkey].typeInvoke('https://lam.maxvol.pro', function() {
 
     client.invoke("RchRegistry", JSON.stringify({
-      version: 149,
+      version: 151,
       host: location.host,
-      rchtype: Lampa.Platform.is('android') ? 'apk' : Lampa.Platform.is('tizen') ? 'cors' : window.rch_nws[hostkey].type,
+      rchtype: Lampa.Platform.is('android') ? 'apk' : Lampa.Platform.is('tizen') ? 'cors' : (window.rch_nws[hostkey].type || 'web'),
       apkVersion: window.rch_nws[hostkey].apkVersion,
       player: Lampa.Storage.field('player'),
-	  account_email: Lampa.Storage.get('account_email'),
+	  account_email: Lampa.Storage.get('account_email', ''),
 	  unic_id: Lampa.Storage.get('lampac_unic_id', ''),
 	  profile_id: Lampa.Storage.get('lampac_profile_id', ''),
 	  token: ''
@@ -92,6 +92,22 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 
     client.on("RchClient", function(rchId, url, data, headers, returnHeaders) {
       var network = new Lampa.Reguest();
+	  
+	  function sendResult(uri, html) {
+	    $.ajax({
+	      url: 'https://lam.maxvol.pro/rch/' + uri + '?id=' + rchId,
+	      type: 'POST',
+	      data: html,
+	      async: true,
+	      cache: false,
+	      contentType: false,
+	      processData: false,
+	      success: function(j) {},
+	      error: function() {
+	        client.invoke("RchResult", rchId, '');
+	      }
+	    });
+	  }
 
       function result(html) {
         if (Lampa.Arrays.isObject(html) || Lampa.Arrays.isArray(html)) {
@@ -112,29 +128,17 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
             .then(function(compressedBuffer) {
               var compressedArray = new Uint8Array(compressedBuffer);
               if (compressedArray.length > html.length) {
-                client.invoke("RchResult", rchId, html);
+                sendResult('result', html);
               } else {
-                $.ajax({
-                  url: 'https://lam9.akter-black.com/rch/gzresult?id=' + rchId,
-                  type: 'POST',
-                  data: compressedArray,
-                  async: true,
-                  cache: false,
-                  contentType: false,
-                  processData: false,
-                  success: function(j) {},
-                  error: function() {
-                    client.invoke("RchResult", rchId, html);
-                  }
-                });
+                sendResult('gzresult', compressedArray);
               }
             })
             .catch(function() {
-              client.invoke("RchResult", rchId, html);
+              sendResult('result', html);
             });
 
         } else {
-          client.invoke("RchResult", rchId, html);
+          sendResult('result', html);
         }
       }
 
@@ -148,8 +152,8 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         result('pong');
       } else {
         console.log('RCH', url);
-        network["native"](url, result, function() {
-          console.log('RCH', 'result empty');
+        network["native"](url, result, function(e) {
+          console.log('RCH', 'result empty, ' + e.status);
           result('');
         }, data, {
           dataType: 'text',
@@ -172,7 +176,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
     });
   });
 };
-  window.rch_nws[hostkey].typeInvoke('https://lam9.akter-black.com', function() {});
+  window.rch_nws[hostkey].typeInvoke('https://lam.maxvol.pro', function() {});
 
   function rchInvoke(json, call) {
     if (window.nwsClient && window.nwsClient[hostkey] && window.nwsClient[hostkey]._shouldReconnect){
@@ -195,7 +199,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 
   function rchRun(json, call) {
     if (typeof NativeWsClient == 'undefined') {
-      Lampa.Utils.putScript(["https://lam9.akter-black.com/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
+      Lampa.Utils.putScript(["https://lam.maxvol.pro/js/nws-client-es5.js?v18112025"], function() {}, false, function() {
         rchInvoke(json, call);
       }, true);
     } else {
@@ -258,7 +262,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 	
     if (balansers_with_search == undefined) {
       network.timeout(10000);
-      network.silent(account('https://lam9.akter-black.com/lite/withsearch'), function(json) {
+      network.silent(account('https://lam.maxvol.pro/lite/withsearch'), function(json) {
         balansers_with_search = json;
       }, function() {
 		  balansers_with_search = [];
@@ -373,7 +377,8 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
 			  files.render().find('.torrent-filter').remove();
 			  _this.empty();
 		  }, false, {
-            dataType: 'text'
+            dataType: 'text',
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
 		  });
 	  } 
       this.externalids().then(function() {
@@ -413,7 +418,9 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
             resolve();
           }, function() {
             resolve();
-          });
+          }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
         } else resolve();
       });
     };
@@ -550,7 +557,9 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
             } else {
               life_wait_timer = setTimeout(fin, 1000);
             }
-          });
+          }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
         };
         fin();
       });
@@ -573,7 +582,9 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
           } else {
             _this4.startSource(json).then(resolve)["catch"](reject);
           }
-        }, reject);
+        }, reject, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
       });
     };
     /**
@@ -598,7 +609,8 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
       number_of_requests++;
       if (number_of_requests < 10) {
         network["native"](account(url), this.parse.bind(this), this.doesNotAnswer.bind(this), false, {
-          dataType: 'text'
+          dataType: 'text',
+		  headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
         });
         clearTimeout(number_of_requests_timer);
         number_of_requests_timer = setTimeout(function() {
@@ -658,6 +670,7 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         network["native"](account(file.url), function(json) {
 			if(json.rch){
 				if(waiting_rch) {
+					waiting_rch = false;
 					Lampa.Loading.stop();
 					call(false, {});
 				}
@@ -676,7 +689,9 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         }, function() {
           Lampa.Loading.stop();
           call(false, {});
-        });
+        }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
       }
     };
     this.toPlayElement = function(file) {
@@ -690,7 +705,8 @@ window.rch_nws[hostkey].Registry = function RchRegistry(client, startConnection)
         callback: file.mark,
 		season: file.season,
 		episode: file.episode,
-		voice_name: file.voice_name
+		voice_name: file.voice_name,
+		thumbnail: file.thumbnail
       };
       return play;
     };
@@ -790,7 +806,7 @@ else if (element.url) {
   if (false) {
     if (Platform.is('browser') && location.host.indexOf("127.0.0.1") !== -1) {
       Noty.show('Видео открыто в playerInner', {time: 3000});
-      $.get('https://lam9.akter-black.com/player-inner/' + element.url);
+      $.get('https://lam.maxvol.pro/player-inner/' + element.url);
       return;
     }
 
@@ -834,7 +850,9 @@ else if (element.url) {
 	this.loadSubtitles = function(link){
 		network.silent(account(link), function(subs){
 			Lampa.Player.subtitles(subs)
-		})
+		}, function() {},false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  })
 	}
     this.parse = function(str) {
       var json = Lampa.Arrays.decodeJson(str, {});
@@ -1235,6 +1253,7 @@ else if (element.url) {
             };
             img.src = Lampa.TMDB.image('t/p/w300' + (episode ? episode.still_path : object.movie.backdrop_path));
             images.push(img);
+			element.thumbnail = img.src
           }
           html.find('.online-prestige__timeline').append(Lampa.Timeline.render(element.timeline));
           if (viewed.indexOf(hash_behold) !== -1) {
@@ -1668,7 +1687,9 @@ else if (element.url) {
                 status.append(name, data);
               }, function() {
                 status.error();
-              })
+              }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  })
             })
           } else {
             oncomplite([]);
@@ -1682,14 +1703,18 @@ else if (element.url) {
                 searchComplite(links);
               }, function() {
                 oncomplite([]);
-              });
+              }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
             });
           } else {
             searchComplite(json);
           }
         }, function() {
           oncomplite([]);
-        });
+        }, false, {
+			headers: {'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')}
+		  });
       },
       onCancel: function() {
         network.clear()
@@ -1728,7 +1753,7 @@ else if (element.url) {
     window.lampac_plugin = true;
     var manifst = {
       type: 'video',
-      version: '1.6.4',
+      version: '1.6.7',
       name: 'Lampac',
       description: 'Плагин для просмотра онлайн сериалов и фильмов',
       component: 'lampac',
@@ -1870,7 +1895,7 @@ else if (element.url) {
       Lampa.Template.add('lampac_prestige_folder', "<div class=\"online-prestige online-prestige--folder selector\">\n            <div class=\"online-prestige__folder\">\n                <svg viewBox=\"0 0 128 112\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                    <rect y=\"20\" width=\"128\" height=\"92\" rx=\"13\" fill=\"white\"></rect>\n                    <path d=\"M29.9963 8H98.0037C96.0446 3.3021 91.4079 0 86 0H42C36.5921 0 31.9555 3.3021 29.9963 8Z\" fill=\"white\" fill-opacity=\"0.23\"></path>\n                    <rect x=\"11\" y=\"8\" width=\"106\" height=\"76\" rx=\"13\" fill=\"white\" fill-opacity=\"0.51\"></rect>\n                </svg>\n            </div>\n            <div class=\"online-prestige__body\">\n                <div class=\"online-prestige__head\">\n                    <div class=\"online-prestige__title\">{title}</div>\n                    <div class=\"online-prestige__time\">{time}</div>\n                </div>\n\n                <div class=\"online-prestige__footer\">\n                    <div class=\"online-prestige__info\">{info}</div>\n                </div>\n            </div>\n        </div>");
       Lampa.Template.add('lampac_prestige_watched', "<div class=\"online-prestige online-prestige-watched selector\">\n            <div class=\"online-prestige-watched__icon\">\n                <svg width=\"21\" height=\"21\" viewBox=\"0 0 21 21\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n                    <circle cx=\"10.5\" cy=\"10.5\" r=\"9\" stroke=\"currentColor\" stroke-width=\"3\"/>\n                    <path d=\"M14.8477 10.5628L8.20312 14.399L8.20313 6.72656L14.8477 10.5628Z\" fill=\"currentColor\"/>\n                </svg>\n            </div>\n            <div class=\"online-prestige-watched__body\">\n                \n            </div>\n        </div>");
     }
-    var button = "<div class=\"full-start__button selector view--online lampac--button\" data-subtitle=\"".concat(manifst.name, " v").concat(manifst.version, "\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 392.697 392.697\" xml:space=\"preserve\">\n            <path d=\"M21.837,83.419l36.496,16.678L227.72,19.886c1.229-0.592,2.002-1.846,1.98-3.209c-0.021-1.365-0.834-2.592-2.082-3.145\n                L197.766,0.3c-0.903-0.4-1.933-0.4-2.837,0L21.873,77.036c-1.259,0.559-2.073,1.803-2.081,3.18\n                C19.784,81.593,20.584,82.847,21.837,83.419z\" fill=\"currentColor\"></path>\n            <path d=\"M185.689,177.261l-64.988-30.01v91.617c0,0.856-0.44,1.655-1.167,2.114c-0.406,0.257-0.869,0.386-1.333,0.386\n                c-0.368,0-0.736-0.082-1.079-0.244l-68.874-32.625c-0.869-0.416-1.421-1.293-1.421-2.256v-92.229L6.804,95.5\n                c-1.083-0.496-2.344-0.406-3.347,0.238c-1.002,0.645-1.608,1.754-1.608,2.944v208.744c0,1.371,0.799,2.615,2.045,3.185\n                l178.886,81.768c0.464,0.211,0.96,0.315,1.455,0.315c0.661,0,1.318-0.188,1.892-0.555c1.002-0.645,1.608-1.754,1.608-2.945\n                V180.445C187.735,179.076,186.936,177.831,185.689,177.261z\" fill=\"currentColor\"></path>\n            <path d=\"M389.24,95.74c-1.002-0.644-2.264-0.732-3.347-0.238l-178.876,81.76c-1.246,0.57-2.045,1.814-2.045,3.185v208.751\n                c0,1.191,0.606,2.302,1.608,2.945c0.572,0.367,1.23,0.555,1.892,0.555c0.495,0,0.991-0.104,1.455-0.315l178.876-81.768\n                c1.246-0.568,2.045-1.813,2.045-3.185V98.685C390.849,97.494,390.242,96.384,389.24,95.74z\" fill=\"currentColor\"></path>\n            <path d=\"M372.915,80.216c-0.009-1.377-0.823-2.621-2.082-3.18l-60.182-26.681c-0.938-0.418-2.013-0.399-2.938,0.045\n                l-173.755,82.992l60.933,29.117c0.462,0.211,0.958,0.316,1.455,0.316s0.993-0.105,1.455-0.316l173.066-79.092\n                C372.122,82.847,372.923,81.593,372.915,80.216z\" fill=\"currentColor\"></path>\n        </svg>\n\n        <span>#{title_online}</span>\n    </div>"); // нужна заглушка, а то при страте лампы говорит пусто
+    var button = "<div class=\"full-start__button selector view--online lampac--button\" data-subtitle=\"".concat(manifst.name, " v").concat(manifst.version, "\">\n         <svg width=\"28\" height=\"29\" viewBox=\"0 0 28 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<circle cx=\"14\" cy=\"14.5\" r=\"13\" stroke=\"currentColor\" stroke-width=\"2.7\"/>\n<path d=\"M18.0739 13.634C18.7406 14.0189 18.7406 14.9811 18.0739 15.366L11.751 19.0166C11.0843 19.4015 10.251 18.9204 10.251 18.1506L10.251 10.8494C10.251 10.0796 11.0843 9.5985 11.751 9.9834L18.0739 13.634Z\" fill=\"currentColor\"/>\n</svg>\n\n        <span>#{title_online}</span>\n    </div>"); // нужна заглушка, а то при страте лампы говорит пусто
     Lampa.Component.add('lampac', component); //то же самое
     resetTemplates();
 
