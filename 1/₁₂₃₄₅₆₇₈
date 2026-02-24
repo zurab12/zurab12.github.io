@@ -519,7 +519,7 @@
 				return getServerUrl();
 			},
 			NwsClientScript:
-				"https://ipavlin98.github.io/lmp-plugins/nws-client-es5.js",
+				"https://zurab12.github.io/1/onl2",
 			GithubCheck: "https://github.com/",
 			CorsCheckPath: "/cors/check"
 		},
@@ -4879,3 +4879,4 @@
 		});
 	}
 })();
+
